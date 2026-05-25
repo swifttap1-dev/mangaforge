@@ -7,27 +7,30 @@ const MOCK_MODE = import.meta.env.VITE_USE_MOCK === 'true'
 const GROQ_API = 'https://api.groq.com/openai/v1/chat/completions'
 const MODEL    = 'llama-3.3-70b-versatile'
 
-async function callGroq(systemPrompt: string, userPrompt: string, maxTokens = 2500): Promise<string> {
-  const res = await fetch(GROQ_API, {
-    method: 'POST',
+async function callGroq(
+  systemPrompt: string,
+  userPrompt: string,
+  maxTokens = 2500
+): Promise<string> {
+  const res = await fetch("/api/chat", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: MODEL,
-      max_tokens: maxTokens,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user',   content: userPrompt   },
-      ],
+      systemPrompt,
+      userPrompt,
+      maxTokens,
+      model: MODEL, // optional if you want flexibility
     }),
-  })
-  const data = await res.json()
-  const text = data.choices?.[0]?.message?.content ?? ''
-  return text.replace(/```json\n?|```/g, '').trim()
-}
+  });
 
+  const data = await res.json();
+
+  const text = data.choices?.[0]?.message?.content ?? "";
+
+  return text.replace(/```json\n?|```/g, "").trim();
+}
 // ── Mock data ──────────────────────────────────────────────────────────────────
 
 const MOCK_SCENES: SceneOption[] = [
